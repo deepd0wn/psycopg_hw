@@ -7,9 +7,6 @@ db_name = config['Database']['db_name']
 db_user = config['Database']['db_user']
 db_password = config['Database']['db_password']
 
-# https://www.psycopg.org/docs/usage.html
-
-conn = None
 
 def create_db(conn):
     with conn.cursor() as cur:
@@ -135,23 +132,18 @@ def delete_client(conn, client_id):
 def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
     with conn.cursor() as cur:
         cur.execute("""
-                SELECT * FROM client c, phone JOIN clientphone cp ON c.id=cp.client_id JOIN phone p ON p.id=cp.phone_id WHERE first_name LIKE %s OR last_name LIKE %s OR email LIKE %s OR phone LIKE %s;
+                SELECT * FROM client c JOIN clientphone cp ON cp.client_id=c.id JOIN phone p ON p.id=cp.phone_id \
+                WHERE first_name LIKE %s OR last_name LIKE %s OR email LIKE %s OR phone LIKE %s;
                 """, (first_name, last_name, email, phone))
         print(cur.fetchall())
-
-# SELECT *
-# FROM client c
-# JOIN clientphone cp ON c.id=cp.client_id
-# JOIN phone p ON p.id=cp.phone_id
-# WHERE first_name LIKE '' OR last_name LIKE '' OR email LIKE '' OR phone LIKE '';
 
 with psycopg2.connect(database=db_name, user=db_user, password=db_password) as conn:
     create_db(conn)
 
     if __name__ == '__main__':
         add_client(conn, "Michael", "Jackson", "michael@jackson.com", "+78885558811")
-        add_client(conn, "Xpen", "From_mountain", "xren@sbugra.com")
-        add_client(conn, "Мао", "Дзедун", "unclemao@ali.com")
+        add_client(conn, "Xpen", "From_mountain", "xpen@sbugra.com")
+        add_client(conn, "Мао", "Дзедун", "unclemao@alibaba.com")
         add_phone(conn, 2, "+13217778833")
         change_client(conn, 3, "Мао", "Дзедун", "unclemao@ali.com", "+43336663399")
         add_phone(conn, 3, "+99992226633")
